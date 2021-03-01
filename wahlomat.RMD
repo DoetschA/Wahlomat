@@ -1,0 +1,55 @@
+---
+title: "Wahlomat Auswertung Ähnlichkeit von Parteien"
+output: html_notebook
+---
+
+Data sources:
+Questions and answers: www.wahl-o-mat.de
+
+Election results:
+Rheinland-Pfalz: www.wahlen.rlp.de
+Baden-Württemberg: www.baden-wuerttemberg.de
+
+
+# BW
+Daten aus Fragen und Standpunkten der Parteien zur Landtagswahl 2021 BW
+
+## Libraries
+```{r}
+library(vegan)
+library(ggplot2)
+```
+
+
+## data import
+```{r}
+matrix_bw21 <- t(read.table("wahlomat_antworten_bw_2021.tsv", header = T))
+fragen_bw21 <- read.table("wahlomat_fragen_bw_2021.tsv", header = T, sep = "\t", )
+parteien_bw21 <- read.table("wahlomat_parteien_bw_2016.tsv", header = T, row.names = 1)
+```
+
+## Ordination
+```{r}
+nmds_bw21 <- metaMDS(matrix_bw21, distance = "manhattan", k = 2)
+plotdata_bw21 <- cbind(nmds_bw21$points[,1:2], parteien_bw21)
+
+ggplot(plotdata_bw21, aes(x = MDS1, y = MDS2, color = Stimmen, label = rownames(plotdata_bw21))) + geom_text() + scale_color_steps(n.breaks = 5)
+```
+
+# RLP
+
+## Datenimport
+```{r}
+matrix_rlp21 <- t(read.table("wahlomat_antworten_rlp_2021.tsv", header = T))
+fragen_rlp21 <- read.table("wahlomat_fragen_rlp_2021.tsv", header = T, sep = "\t", )
+parteien_rlp21 <- read.table("wahlomat_parteien_rlp_2016.tsv", header = T, row.names = 1)
+```
+
+## Ordination
+```{r}
+#wahl_dist <- dist(wahlomatrix, method = "manhattan")
+nmds_rlp21 <- metaMDS(matrix_rlp21, distance = "manhattan", k = 2)
+plotdata_rlp21 <- cbind(nmds_rlp21$points[,1:2], parteien_rlp21)
+
+ggplot(plotdata_rlp21, aes(x = MDS1, y = MDS2, color = Stimmen, label = rownames(plotdata_rlp21))) + geom_text() + scale_size_area()
+```
